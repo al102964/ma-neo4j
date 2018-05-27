@@ -25,7 +25,7 @@
   <carousel class="deck container-fluid">
     <!--slide class="row-fluid">
       <div class="col-sm-3">
-        <h3>ProyectoFinal - Metodos Analiticos TrumpWorld</h3>
+        <h3>ProyectoFinal - Metodos Analíticos TrumpWorld</h3>
         <p class="lead">Information</p>
 			<!dl>
 				
@@ -46,10 +46,13 @@
 
 <slide class="row-fluid">
   <div class="col-sm-12">
-    <h3>Analisis de organizaciones</h3>
+    <h3>Análisis de organizaciones</h3>
     <br/>
     <div>
-      <div class="listingblock">
+      <div class="paragraph">
+<p>PAGE RANK:</p>
+</div>
+<div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.pageRank.stream('Organization','*',{iterations:5, dampingFactor:0.85})
 YIELD node, score
@@ -67,16 +70,65 @@ ORDER BY score DESC LIMIT 10;<!--/code--></pre>
 
 <slide class="row-fluid">
   <div class="col-sm-12">
-    <h3>Analisis de personas</h3>
+    <h3>Análisis de organizaciones</h3>
     <br/>
     <div>
-      <div class="listingblock">
+      <div class="paragraph">
+<p>BETWEENESS:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.closeness.stream('Organization','*',{concurrency:4})
+YIELD nodeId, centrality
+match (n:Person)&lt;-[r]-(m)
+where ID(n) in [nodeId]
+RETURN n,r,m;<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Análisis de personas</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>PAGE RANK</p>
+</div>
+<div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.pageRank.stream('Person','*',{iterations:5, dampingFactor:0.85})
 YIELD node, score
 match (n:Person)
 where (n.name) in [node.name]
 RETURN n,score order by score DESC limit 10;<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Análisis de personas</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>CLOSENESS</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.closeness.stream('Person', '*',{concurrency:4})
+YIELD nodeId, centrality
+match (n:Person)&lt;-[r]-(m)
+where ID(n) in [nodeId]
+RETURN n,r,m;<!--/code--></pre>
 </div>
 </div>
 	</div>
