@@ -74,15 +74,88 @@ ORDER BY score DESC LIMIT 10;<!--/code--></pre>
     <br/>
     <div>
       <div class="paragraph">
-<p>BETWEENESS:</p>
+<p>CLOSENESS TABLE:</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.closeness.stream('Organization','*',{concurrency:4})
 YIELD nodeId, centrality
-match (n:Person)&lt;-[r]-(m)
-where ID(n) in [nodeId]
-RETURN n,r,m;<!--/code--></pre>
+match (o:Organization)
+where ID(o) in [nodeId]
+RETURN o,centrality
+order by centrality DESC;<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Análisis de organizaciones</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>BETWEENESS out:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.betweenness.stream('Organization','*',{direction:'out'})
+YIELD nodeId, centrality
+match (o:Organization)
+where ID(o) in [nodeId]
+RETURN o,centrality
+order by centrality DESC;<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Análisis de organizaciones</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>BETWEENESS in:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.betweenness.stream('Organization','*',{direction:'in'})
+YIELD nodeId, centrality
+match (o:Organization)
+where ID(o) in [nodeId]
+RETURN o,centrality
+order by centrality DESC;<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Análisis de organizaciones</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>BETWEENESS in:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.betweenness.stream('Organization','*',{direction:'both'})
+YIELD nodeId, centrality
+match (o:Organization)
+where ID(o) in [nodeId]
+RETURN o,centrality
+order by centrality DESC;<!--/code--></pre>
 </div>
 </div>
 	</div>
@@ -126,9 +199,82 @@ RETURN n,score order by score DESC limit 10;<!--/code--></pre>
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.closeness.stream('Person', '*',{concurrency:4})
 YIELD nodeId, centrality
-match (n:Person)&lt;-[r]-(m)
+match (n:Person)
 where ID(n) in [nodeId]
-RETURN n,r,m;<!--/code--></pre>
+RETURN n.name,centrality
+order by centrality DESC;<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Análisis de Personas</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>BETWEENESS out:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.betweenness.stream('Person','*',{direction:'out'})
+YIELD nodeId, centrality
+match (o:Person)
+where ID(o) in [nodeId]
+RETURN o,centrality
+order by centrality DESC;<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Análisis de Personas</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>BETWEENESS in:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.betweenness.stream('Person','*',{direction:'in'})
+YIELD nodeId, centrality
+match (o:Person)
+where ID(o) in [nodeId]
+RETURN o,centrality
+order by centrality DESC;<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
+    <h3>Análisis de Personas</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>BETWEENESS in:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.betweenness.stream('Person','*',{direction:'both'})
+YIELD nodeId, centrality
+match (o:Person)
+where ID(o) in [nodeId]
+RETURN o,centrality
+order by centrality DESC;<!--/code--></pre>
 </div>
 </div>
 	</div>
