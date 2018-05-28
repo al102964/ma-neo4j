@@ -46,6 +46,247 @@
 
 <slide class="row-fluid">
   <div class="col-sm-12">
+    <h3>Importando los datos</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Query1:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->WITH
+'https://docs.google.com/spreadsheets/u/1/d/1Z5Vo5pbvxKJ5XpfALZXvCzW26Cl4we3OaN73K9Ae5Ss/export?format=csv&amp;gid=1996904412' AS url
+LOAD CSV WITH HEADERS FROM url AS row
+RETURN row.`Entity A`,row.`Entity A Type`, row.`Entity B`,row.`Entity B Type`,row.Connection, row.`Source(s)`
+LIMIT 5<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Query2:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->WITH
+'https://docs.google.com/spreadsheets/u/1/d/1Z5Vo5pbvxKJ5XpfALZXvCzW26Cl4we3OaN73K9Ae5Ss/export?format=csv&amp;gid=1996904412' AS url
+LOAD CSV WITH HEADERS FROM url AS row
+WITH row
+WHERE row.`Entity A Type` = 'Organization' AND row.`Entity B Type` = 'Organization'
+UNWIND  [row.`Entity A`, row.`Entity B`] AS org
+RETURN org, count(*)
+ORDER BY count(*) DESC LIMIT 10;<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Query3:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->WITH
+'https://docs.google.com/spreadsheets/u/1/d/1Z5Vo5pbvxKJ5XpfALZXvCzW26Cl4we3OaN73K9Ae5Ss/export?format=csv&amp;gid=1996904412' AS url
+LOAD CSV WITH HEADERS FROM url AS row
+RETURN row.Connection AS type, count(*)
+ORDER BY count(*) DESC;<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Query4:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->WITH
+'https://docs.google.com/spreadsheets/u/1/d/1Z5Vo5pbvxKJ5XpfALZXvCzW26Cl4we3OaN73K9Ae5Ss/export?format=csv&amp;gid=1996904412' AS url,
+['LOAN','LOBBIED','SALE','SUPPLIER','SHAREHOLDER','LICENSES','AFFILIATED','TIES','NEGOTIATION','INVOLVED','PARTNER'] AS terms
+LOAD CSV WITH HEADERS FROM url AS row
+WITH terms, row WHERE row.`Entity A Type` = 'Organization' AND row.`Entity B Type` = 'Organization'
+WITH apoc.text.regreplace(toUpper(row.Connection),'\\W+','_') AS type, row, terms
+WITH head(filter(term IN terms WHERE type CONTAINS term)) AS found, type, row
+RETURN substring(coalesce(found,type),0,30) AS type, count(*), collect(distinct row.Connection)[0..5] AS connections
+ORDER BY count(*) DESC;<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Query5</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CREATE CONSTRAINT ON (o:Organization) ASSERT o.name IS UNIQUE;<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Query6</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->WITH
+'https://docs.google.com/spreadsheets/u/1/d/1Z5Vo5pbvxKJ5XpfALZXvCzW26Cl4we3OaN73K9Ae5Ss/export?format=csv&amp;gid=1996904412' AS url,
+['LOAN','LOBBIED','SALE','SUPPLIER','SHAREHOLDER','LICENSES','AFFILIATED','TIES','NEGOTIATION','INVOLVED','PARTNER'] AS terms
+LOAD CSV WITH HEADERS FROM url AS row
+
+WITH terms, row WHERE row.`Entity A Type` = 'Organization' AND row.`Entity B Type` = 'Organization'
+WITH apoc.text.regreplace(toUpper(row.Connection),'\\W+','_') AS type, row, terms
+WITH coalesce(head(filter(term IN terms WHERE type CONTAINS term)), type) AS type, row
+
+MERGE (o1:Organization {name:row.`Entity A`})
+MERGE (o2:Organization {name:row.`Entity B`})
+WITH o1,o2,type,row
+CALL apoc.create.relationship(o1,type, {source:row.`Source(s)`, connection:row.Connection},o2) YIELD rel
+RETURN type(rel), count(*)
+ORDER BY count(*) desc;<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Query11</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->WITH
+'https://docs.google.com/spreadsheets/u/1/d/1Z5Vo5pbvxKJ5XpfALZXvCzW26Cl4we3OaN73K9Ae5Ss/export?format=csv&amp;gid=1996904412' AS url
+LOAD CSV WITH HEADERS FROM url AS row
+
+WITH row WHERE row.`Entity A Type` = 'Person' AND row.`Entity B Type` = 'Organization'
+
+RETURN row.`Entity A` as Person,row.`Entity B` as Organization,row.Connection, row.`Source(s)`
+LIMIT 5<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Query12</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->WITH
+'https://docs.google.com/spreadsheets/u/1/d/1Z5Vo5pbvxKJ5XpfALZXvCzW26Cl4we3OaN73K9Ae5Ss/export?format=csv&amp;gid=1996904412' AS url
+LOAD CSV WITH HEADERS FROM url AS row
+WITH row WHERE row.`Entity A Type` = 'Person' AND row.`Entity B Type` = 'Organization'
+
+RETURN row.Connection AS type, count(*)
+ORDER BY count(*) DESC LIMIT 5;<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Query13</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->WITH
+'https://docs.google.com/spreadsheets/u/1/d/1Z5Vo5pbvxKJ5XpfALZXvCzW26Cl4we3OaN73K9Ae5Ss/export?format=csv&amp;gid=1996904412' AS url,
+['BOARD','DIRECTOR','INCOME','PRESIDENT','CHAIR','CEO','PARTNER','OWNER','INVESTOR','FOUNDER','STAFF','DEVELOPER','EXECUTIVE_COMITTEE','EXECUTIVE','FELLOW','BANKER','COUNSEL','ADVISOR','SHAREHOLDER','LIASON','SPEECH','CONNECTED','HIRED','CONSULTED','INVOLVED','APPOINTEE','MANAGER','TRUSTEE','AMBASSADOR','PUBLISHER','LAWYER'] AS terms
+LOAD CSV WITH HEADERS FROM url AS row
+WITH terms, row WHERE row.`Entity A Type` = 'Person' AND row.`Entity B Type` = 'Organization'
+
+WITH apoc.text.regreplace(toUpper(row.Connection),'\\W+','_') AS type, row, terms
+WITH head(filter(term IN terms WHERE type CONTAINS term)) AS found, type, row
+RETURN substring(coalesce(found,type),0,30) AS type, count(*), collect(distinct row.Connection)[0..5] AS connections
+ORDER BY count(*) DESC;<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Query14</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CREATE CONSTRAINT ON (p:Person) ASSERT p.name IS UNIQUE;<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Query15</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->WITH
+'https://docs.google.com/spreadsheets/u/1/d/1Z5Vo5pbvxKJ5XpfALZXvCzW26Cl4we3OaN73K9Ae5Ss/export?format=csv&amp;gid=1996904412' AS url,
+['BOARD','DIRECTOR','INCOME','PRESIDENT','CHAIR','CEO','PARTNER','OWNER','INVESTOR','FOUNDER','STAFF','DEVELOPER','EXECUTIVE_COMITTEE','EXECUTIVE','FELLOW','BANKER','COUNSEL','ADVISOR','SHAREHOLDER','LIASON','SPEECH','CONNECTED','HIRED','CONSULTED','INVOLVED','APPOINTEE','MANAGER','TRUSTEE','AMBASSADOR','PUBLISHER','LAWYER'] AS terms
+LOAD CSV WITH HEADERS FROM url AS row
+
+WITH terms, row
+WHERE row.`Entity A Type` = 'Person' AND row.`Entity B Type` = 'Organization'
+WITH * LIMIT 150
+
+WITH apoc.text.regreplace(toUpper(row.Connection),'\\W+','_') AS type, row, terms
+WITH coalesce(head(filter(term IN terms WHERE type CONTAINS term)), 'INVOLVED_WITH') AS type, row
+
+MERGE (p:Person {name:row.`Entity A`})
+MERGE (o:Organization {name:row.`Entity B`})
+WITH o,p,type,row
+CALL apoc.create.relationship(p,type, {source:row.`Source(s)`, connection:row.Connection},o) YIELD rel
+RETURN type(rel), count(*)
+ORDER BY count(*) desc;<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Query16</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->WITH
+'https://docs.google.com/spreadsheets/u/1/d/1Z5Vo5pbvxKJ5XpfALZXvCzW26Cl4we3OaN73K9Ae5Ss/export?format=csv&amp;gid=1996904412' AS url,
+['BOARD','DIRECTOR','INCOME','PRESIDENT','CHAIR','CEO','PARTNER','OWNER','INVESTOR','FOUNDER','STAFF','DEVELOPER','EXECUTIVE_COMITTEE','EXECUTIVE','FELLOW','BANKER','COUNSEL','ADVISOR','SHAREHOLDER','LIASON','SPEECH','CONNECTED','HIRED','CONSULTED','INVOLVED','APPOINTEE','MANAGER','TRUSTEE','AMBASSADOR','PUBLISHER','LAWYER'] AS terms
+LOAD CSV WITH HEADERS FROM url AS row
+
+WITH terms, row
+WHERE row.`Entity A Type` = 'Organization' AND row.`Entity B Type` = 'Person'
+WITH * LIMIT 150
+WITH apoc.text.regreplace(toUpper(row.Connection),'\\W+','_') AS type, row, terms
+WITH coalesce(head(filter(term IN terms WHERE type CONTAINS term)), 'INVOLVED_WITH') AS type, row
+
+MERGE (o:Organization {name:row.`Entity A`})
+MERGE (p:Person {name:row.`Entity B`})
+WITH o,p,type,row
+CALL apoc.create.relationship(p,type, {source:row.`Source(s)`, connection:row.Connection},o) YIELD rel
+RETURN type(rel), count(*)
+ORDER BY count(*) desc;<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Query17</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->WITH
+'https://docs.google.com/spreadsheets/u/1/d/1Z5Vo5pbvxKJ5XpfALZXvCzW26Cl4we3OaN73K9Ae5Ss/export?format=csv&amp;gid=1996904412' AS url,
+['WHITE_HOUSE','REPRESENTATIVE','FRIEND','DIRECTOR','ADVISOR','WORKED','MET','LUNCHED','NOMINEE','COUNSELOR','AIDED','CAMPAIGN','PARTNER','MARRIED','CLOSE','APPEARANCE','BOUGHT','SAT_IN','CONSULTED','CO_CHAIR','GAVE'] AS terms
+LOAD CSV WITH HEADERS FROM url AS row
+WITH terms, row
+WHERE row.`Entity A Type` = 'Person' AND row.`Entity B Type` = 'Person'
+
+WITH apoc.text.regreplace(toUpper(row.Connection),'\\W+','_') AS type, row, terms
+WITH head(filter(term IN terms WHERE type CONTAINS term)) AS found, type, row
+RETURN substring(coalesce(found,type),0,30) AS type, count(*), collect(distinct row.Connection)[0..5] AS connections
+ORDER BY count(*) DESC;<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Query18</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->WITH
+'https://docs.google.com/spreadsheets/u/1/d/1Z5Vo5pbvxKJ5XpfALZXvCzW26Cl4we3OaN73K9Ae5Ss/export?format=csv&amp;gid=1996904412' AS url,
+['WHITE_HOUSE','REPRESENTATIVE','FRIEND','DIRECTOR','ADVISOR','WORKED','MET','LUNCHED','NOMINEE','COUNSELOR','AIDED','CAMPAIGN','PARTNER','MARRIED','CLOSE','APPEARANCE','BOUGHT','SAT_IN','CONSULTED','CO_CHAIR','GAVE'] AS terms
+LOAD CSV WITH HEADERS FROM url AS row
+WITH terms, row
+WHERE row.`Entity A Type` = 'Person' AND row.`Entity B Type` = 'Person'
+WITH * LIMIT 150
+
+WITH apoc.text.regreplace(toUpper(row.Connection),'\\W+','_') AS type, row, terms
+WITH coalesce(head(filter(term IN terms WHERE type CONTAINS term)), type) AS type, row
+
+MERGE (p1:Person {name:row.`Entity A`})
+MERGE (p2:Person {name:row.`Entity B`})
+WITH p1,p2,type,row
+CALL apoc.create.relationship(p2,type, {source:row.`Source(s)`, connection:row.Connection},p1) YIELD rel
+RETURN type(rel), count(*)
+ORDER BY count(*) desc;<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
     <h3>Análisis de organizaciones</h3>
     <br/>
     <div>
