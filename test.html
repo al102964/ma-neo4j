@@ -346,6 +346,52 @@ ORDER BY score DESC LIMIT 10;<!--/code--></pre>
 
 <slide class="row-fluid">
   <div class="col-sm-12">
+    <h3>Descripcion del grafo</h3>
+    <br/>
+    <div>
+      <div class="paragraph">
+<p>Total de nodos:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH(n) RETURN count(labels(n))<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Tipos de nodos:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (n)
+RETURN DISTINCT count(labels(n)), labels(n);<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Total relaciones</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->match ()-[r]-()
+return count(r);<!--/code--></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Total relaciones</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH ()-[n]-()
+RETURN DISTINCT count(type(n)), type(n);<!--/code--></pre>
+</div>
+</div>
+	</div>
+  </div>
+</slide>
+
+
+
+<slide class="row-fluid">
+  <div class="col-sm-12">
     <h3>Análisis de organizaciones</h3>
     <br/>
     <div>
