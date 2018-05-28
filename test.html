@@ -378,7 +378,7 @@ order by conteo DESC;<!--/code--></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.pageRank.stream('Organization','*',{iterations:5, dampingFactor:0.85})
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.pageRank.stream('Organization','*',{iterations:5, dampingFactor:0.85,concurrency:4})
 YIELD node, score
 match (o:Organization)
 where (o.name) in [node.name]
@@ -498,7 +498,7 @@ order by centrality DESC;<!--/code--></pre>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.pageRank.stream('Person','*',{iterations:5, dampingFactor:0.85})
+<pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->CALL algo.pageRank.stream('Person','*',{iterations:5, dampingFactor:0.85,concurrency:4})
 YIELD node, score
 match (n:Person)
 where (n.name) in [node.name]
