@@ -339,7 +339,7 @@ ORDER BY count(*) desc;<!--/code--></pre>
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH (n)
-RETURN DISTINCT count(labels(n)), labels(n);<!--/code--></pre>
+RETURN DISTINCT count(labels(n)) AS conteo, labels(n) order by conteo DESC;<!--/code--></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -348,7 +348,8 @@ RETURN DISTINCT count(labels(n)), labels(n);<!--/code--></pre>
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->match ()-[r]-()
-return count(r);<!--/code--></pre>
+return count(r) AS conteo
+order by conteo DESC;<!--/code--></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -357,7 +358,8 @@ return count(r);<!--/code--></pre>
 <div class="listingblock">
 <div class="content">
 <pre mode="cypher"  class="highlight pre-scrollable programlisting cm-s-neo code runnable standalone-example ng-binding" data-lang="cypher" lang="cypher"><!--code class="cypher language-cypher"-->MATCH ()-[n]-()
-RETURN DISTINCT count(type(n)), type(n);<!--/code--></pre>
+RETURN DISTINCT count(type(n)) AS conteo, type(n)
+order by conteo DESC;<!--/code--></pre>
 </div>
 </div>
 	</div>
